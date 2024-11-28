@@ -29,6 +29,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        // 특정 경로에 대해 필터 건너뛰기
+        String requestPath = request.getRequestURI();
+        if (requestPath.equals("/android/auth/login")) { // 로그인 경로 예외 처리
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String token = getJwtFromRequest(request);
 
         if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {

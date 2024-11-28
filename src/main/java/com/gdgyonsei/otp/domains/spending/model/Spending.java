@@ -4,7 +4,7 @@ import com.gdgyonsei.otp.domains.util.UpperCategoryType;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -26,7 +26,7 @@ public class Spending {
     private UpperCategoryType upperCategoryType;
 
     @Column(nullable = false)
-    private LocalDate date;
+    private LocalDateTime dateTime;
 
     @Column(nullable = false)
     private int expenseAmount;

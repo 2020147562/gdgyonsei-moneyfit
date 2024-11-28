@@ -19,6 +19,7 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
         http
+                .securityMatcher("/**")
                 .csrf(AbstractHttpConfigurer::disable)  // CSRF 비활성화
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/login", "/error").permitAll()

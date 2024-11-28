@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class SpendingUpdateRequest {
     private String upperCategoryType;
-    private String date;
+    private String dateTime;
     private int expenseAmount;
 }

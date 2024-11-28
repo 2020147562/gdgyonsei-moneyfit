@@ -1,6 +1,7 @@
 package com.gdgyonsei.otp.security.controller;
 
 import com.gdgyonsei.otp.security.DTO.AndroidVerifyingInfo;
+import com.gdgyonsei.otp.security.DTO.LoginRequest;
 import com.gdgyonsei.otp.security.service.AndroidAuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +17,9 @@ public class AndroidTokenAuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@RequestHeader("Authorization") String authorizationHeader) {
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Authorization header format");
-        }
-        String token = authorizationHeader.replace("Bearer ", "");
-        AndroidVerifyingInfo info = authService.verifyTokenAndAuthenticate(token);
+    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest request) {
+        String email = request.getEmail();
+        AndroidVerifyingInfo info = authService.generateToken(email);
         return ResponseEntity.status(HttpStatus.OK).body(info);
     }
 }

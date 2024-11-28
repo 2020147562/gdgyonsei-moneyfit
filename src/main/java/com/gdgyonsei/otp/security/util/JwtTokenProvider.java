@@ -18,7 +18,7 @@ public class JwtTokenProvider {
     private String secretKeyEnv;
 
     private SecretKey secretKey;
-    private final long validityInMilliseconds = 3600000; // 1시간 유효기간
+    private final long validityInMilliseconds = 36000000; // 10시간 유효기간
 
     @PostConstruct
     protected void init() {

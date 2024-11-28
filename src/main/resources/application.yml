@@ -1,0 +1,71 @@
+spring:
+  application:
+    name: oTP
+
+  datasource:
+    url: jdbc:postgresql://db:5432/otp
+    username: postgres
+    password: 0258
+
+  # Hibernate and JPA configurationsx
+  # Automatically creates and updates tables in the database based on entities.
+  # If sets to "create", creates the tables on every application starts ( existing data wiped out )
+  jpa:
+    hibernate:
+      ddl-auto: update
+      properties:
+        hibernate:
+          dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true  # SQL ?? ???
+    open-in-view: false
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope: profile, email
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+            client-name: Google
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 5000
+          starttls:
+            enable: true
+
+
+server:
+  address: 0.0.0.0
+  port: 8080
+
+  servlet:
+    session:
+      timeout: 300s
+
+  tomcat:
+    keep-alive-timeout: 20000
+    max-connections: 100
+
+  http2:
+    keepalive-timeout: 20s
+
+logging:
+  level:
+    root: DEBUG
+    org.springframework:
+      web: DEBUG
+      security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+

@@ -26,16 +26,7 @@ public class AndroidAuthService {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    public AndroidVerifyingInfo verifyTokenAndAuthenticate(String token) {
-        GoogleIdToken idToken = verifyToken(token);
-        if (idToken == null) {
-            throw new IllegalArgumentException("Invalid ID token");
-        }
-
-        GoogleIdToken.Payload payload = idToken.getPayload();
-        String name = (String) payload.get("name");
-        String email = payload.getEmail();
-
+    public AndroidVerifyingInfo generateToken(String email) {
         // findByEmail 사용하여 사용자 존재 여부 확인
         boolean isNewMember = memberRepository.findByEmail(email).isEmpty();
 
@@ -48,15 +39,7 @@ public class AndroidAuthService {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return new AndroidVerifyingInfo(name, email, isNewMember, accessToken);
-    }
-
-    private GoogleIdToken verifyToken(String token) {
-        try {
-            return tokenVerifier.verify(token);
-        } catch (GeneralSecurityException | IOException e) {
-            throw new RuntimeException("Token verification failed", e);
-        }
+        return new AndroidVerifyingInfo(email, isNewMember, accessToken);
     }
 }
 

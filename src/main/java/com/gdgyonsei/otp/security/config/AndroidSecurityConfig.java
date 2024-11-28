@@ -20,9 +20,10 @@ public class AndroidSecurityConfig {
     @Bean
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
+//                .securityMatcher("/android/**")
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/android/auth/login").permitAll()
+                        .requestMatchers("/android/auth/login", "/error").permitAll()
                         .requestMatchers("/android/**").authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

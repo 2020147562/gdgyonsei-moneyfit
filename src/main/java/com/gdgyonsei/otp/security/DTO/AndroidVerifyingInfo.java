@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor  // 기본 생성자
 @AllArgsConstructor // 모든 필드를 매개변수로 받는 생성자
 public class AndroidVerifyingInfo {
-    private String name;
     private String email;
     private boolean isNewMember;
     private String accessToken;

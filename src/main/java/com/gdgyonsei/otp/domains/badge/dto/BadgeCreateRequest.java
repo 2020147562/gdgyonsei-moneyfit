@@ -11,12 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BadgeCreateRequest {
-
     @NotNull
-    private Long memberId;
-
-    @NotNull
-    private BadgeType badgeType;
+    private String badgeTypeString;
 
     private Integer consecutiveMonths;  // Optional, 기본값 처리 가능
 

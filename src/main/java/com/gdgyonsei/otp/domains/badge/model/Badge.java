@@ -1,14 +1,17 @@
 package com.gdgyonsei.otp.domains.badge.model;
 
+import com.gdgyonsei.otp.domains.badge.validation.ValidBadge;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
+@ValidBadge
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
@@ -19,7 +22,7 @@ public class Badge {
     private Long id;
 
     @Column(nullable = false)
-    private Long memberId;
+    private String memberEmail;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -35,6 +38,6 @@ public class Badge {
     private String specificYearMonth;
 
     @Column(nullable = false)
-    private LocalDate acquiredDate;
+    private LocalDateTime acquiredDateTime;
 
 }

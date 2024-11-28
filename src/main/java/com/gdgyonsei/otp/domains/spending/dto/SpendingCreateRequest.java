@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class SpendingCreateRequest {
     private String upperCategoryType;
-    private String date;
+    private String dateTime;
     private int expenseAmount;
 }
 

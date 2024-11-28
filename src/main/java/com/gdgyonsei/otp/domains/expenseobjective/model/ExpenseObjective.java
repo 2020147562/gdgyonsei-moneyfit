@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
+import java.time.YearMonth;
+
 @Entity
 @Getter
 @Setter
@@ -31,13 +33,12 @@ public class ExpenseObjective {
     @Column(nullable = false)
     private int spentAmount;
 
-    // Member id who own this objective
+    // Member email who own this objective
     @Column(nullable = false)
     private String memberEmail;
 
-    // Month of this objective
+    // target month of this objective
     @Column(nullable = false)
-    @Pattern(regexp = "\\d{4}-\\d{2}", message = "whichMonth must be in the format yyyy-MM")
-    private String whichMonth;
+    private YearMonth targetMonth;
 }
 
