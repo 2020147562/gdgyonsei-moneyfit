@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: akasia/otp_financial:v1.6
+    image: akasia/otp_financial:v1.9
     ports:
       - "8080:8080"
     env_file:

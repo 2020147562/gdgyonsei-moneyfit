@@ -52,6 +52,13 @@ public class PointsController {
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("consecutiveDays", consecutiveDays, "leftPoints", leftPoints));
     }
 
+    @PutMapping("/addThousandPoints")
+    public ResponseEntity<Map<String, Long>> addThousandPoints() {
+        String email = getAuthenticatedEmail();
+        Long leftPoints = pointsService.addThousandPointsWithEmail(email);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("leftPoints", leftPoints));
+    }
+
     private String getAuthenticatedEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication.getName();

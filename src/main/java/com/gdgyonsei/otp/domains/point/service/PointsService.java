@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Random;
 
 import static com.gdgyonsei.otp.domains.point.constants.Constants.BASIC_ATTENDANCE_POINTS;
+import static com.gdgyonsei.otp.domains.point.constants.Constants.GATCHA_COST;
 
 @RequiredArgsConstructor
 @Service
@@ -24,6 +25,16 @@ public class PointsService {
     private final PointsRepository pointsRepository;
     private final BadgeService badgeService;
     private final BadgeOwnershipService badgeOwnershipService;
+
+    @Transactional
+    public Points createPoints(String memberEamil) {
+        Points points = new Points();
+        points.setMemberEmail(memberEamil);
+        points.setLeftPoints(0L);
+        points.setLastAccessDate(LocalDate.now().minusDays(2));    // Not to make consecutive access
+        points.setConsecutiveDays(0);                                           // zero means this is just created.
+        return pointsRepository.save(points);
+    }
 
     @Transactional(readOnly = true)
     public Points getPointsByEmail(String email) {
@@ -35,7 +46,7 @@ public class PointsService {
     public boolean gatcha10WithEmail(String memberEmail, String giftyEmail) {
         Points points = getPointsByEmail(memberEmail);
         // If remaining points are under 1000, immediately fail the gatcha.
-        if (points.getLeftPoints() < 1000) {
+        if (points.getLeftPoints() < GATCHA_COST) {
             return false;
         }
         if (!badgeOwnershipService.getFirstRandomBoxTrial(memberEmail)) {
@@ -45,6 +56,7 @@ public class PointsService {
         }
         boolean isSuccess = new Random().nextInt(100) < 10;
         if (isSuccess) {
+            points.setLeftPoints(points.getLeftPoints() + GATCHA_COST);
             sendSuccessEmail(giftyEmail);
             if (!badgeOwnershipService.getFirstRandomBoxTrial(memberEmail)) {
                 badgeOwnershipService.updateFirstRandomBoxSuccess(memberEmail, true);
@@ -91,6 +103,15 @@ public class PointsService {
         pointsRepository.save(points);
 
         return List.of(points.getConsecutiveDays(), points.getLeftPoints());
+    }
+
+    @Transactional
+    public Long addThousandPointsWithEmail(String email) {
+        Points points = getPointsByEmail(email);
+        Long result = points.getLeftPoints() + 1000L;
+        points.setLeftPoints(result);
+        pointsRepository.save(points);
+        return result;
     }
 
     private void sendSuccessEmail(String email) {

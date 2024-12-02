@@ -1,13 +1,14 @@
 package com.gdgyonsei.otp.domains.expenseobjective.controller;
 
 import com.gdgyonsei.otp.domains.badge.service.BadgeOwnershipService;
-import com.gdgyonsei.otp.domains.badge.service.BadgeService;
+import com.gdgyonsei.otp.domains.util.UpperCategoryType;
 import com.gdgyonsei.otp.domains.expenseobjective.dto.ExpenseObjectiveCreateRequest;
 import com.gdgyonsei.otp.domains.expenseobjective.dto.ExpenseObjectiveUpdateRequest;
 import com.gdgyonsei.otp.domains.expenseobjective.model.ExpenseObjective;
 import com.gdgyonsei.otp.domains.expenseobjective.service.ExpenseObjectiveService;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,6 +34,32 @@ public class ExpenseObjectiveController {
     @GetMapping("/{id}")
     public ExpenseObjective getExpenseObjectiveById(@PathVariable Long id) {
         return service.getExpenseObjectiveById(id);
+    }
+
+    @GetMapping("/get")
+    public ResponseEntity<Map<String, List<ExpenseObjective>>> getExpenseObjectiveList() {
+        String email = getAuthenticatedEmail();
+        List<ExpenseObjective> list = service.getExpenseObjectiveListByEmail(email);
+        return ResponseEntity.ok(Map.of("expenseObjective list for this member", list));
+    }
+
+    @GetMapping("/get/{targetMonth}")
+    public ResponseEntity<Map<String, List<ExpenseObjective>>> getExpenseObjectiveListByEmailAndTargetMonth(
+            @PathVariable @Pattern(regexp = "\\d{4}-\\d{2}", message = "Invalid yearMonth format. Expected yyyy-MM.") String targetMonth) {
+        String email = getAuthenticatedEmail();
+        List<ExpenseObjective> list = service.getExpenseObjectiveListByEmailAndTargetrMonth(email, targetMonth);
+        return ResponseEntity.ok(Map.of("expenseObjective list for this member", list));
+    }
+
+    @GetMapping("/get/{targetMonth}/{upperCategoryType}")
+    public ResponseEntity<Map<String, List<ExpenseObjective>>> getExpenseObjectiveListByMonthAndUpperCategoryType(
+            @PathVariable @Pattern(regexp = "\\d{4}-\\d{2}", message = "Invalid yearMonth format. Expected yyyy-MM.") String targetMonth,
+            String upperCategoryType
+    ) {
+        String email = getAuthenticatedEmail();
+        List<ExpenseObjective> list =
+                service.getExpenseObjectiveListByEmailAndTargetMonthAndUpperCategoryType(email, targetMonth, UpperCategoryType.valueOf(upperCategoryType.toUpperCase()));
+        return ResponseEntity.ok(Map.of("expenseObjective list for this member", list));
     }
 
     @PutMapping("/update/{id}")

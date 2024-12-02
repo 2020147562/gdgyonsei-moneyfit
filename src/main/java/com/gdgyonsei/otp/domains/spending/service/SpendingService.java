@@ -1,11 +1,15 @@
 package com.gdgyonsei.otp.domains.spending.service;
 
+import com.gdgyonsei.otp.domains.expenseobjective.model.ExpenseObjective;
+import com.gdgyonsei.otp.domains.expenseobjective.repository.ExpenseObjectiveRepository;
+import com.gdgyonsei.otp.domains.expenseobjective.service.ExpenseObjectiveService;
 import com.gdgyonsei.otp.domains.spending.dto.SpendingCreateRequest;
 import com.gdgyonsei.otp.domains.spending.dto.SpendingUpdateRequest;
 import com.gdgyonsei.otp.domains.spending.model.Spending;
 import com.gdgyonsei.otp.domains.spending.model.UpperCategorySummary;
 import com.gdgyonsei.otp.domains.spending.repository.SpendingRepository;
 import com.gdgyonsei.otp.domains.util.UpperCategoryType;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,15 +18,15 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class SpendingService {
     private final SpendingRepository spendingRepository;
-
-    public SpendingService(SpendingRepository spendingRepository) {
-        this.spendingRepository = spendingRepository;
-    }
+    private final ExpenseObjectiveRepository expenseObjectiveRepository;
+    private final ExpenseObjectiveService expenseObjectiveService;
 
     @Transactional
     public Spending createSpending(SpendingCreateRequest request, String memberEmail) {
@@ -31,6 +35,17 @@ public class SpendingService {
         spending.setUpperCategoryType(UpperCategoryType.valueOf(request.getUpperCategoryType().toUpperCase()));
         spending.setDateTime(LocalDateTime.parse(request.getDateTime()));
         spending.setExpenseAmount(request.getExpenseAmount());
+
+        // Spending이 추가되었으니 ExpenseObjective의 spentAmount값 증가시킴
+        String spendingYearMonth = YearMonth.from(spending.getDateTime()).toString();
+        UpperCategoryType upperCategoryType = spending.getUpperCategoryType();
+        int expenseAmount = spending.getExpenseAmount();
+        List<ExpenseObjective> list =
+                expenseObjectiveService.getExpenseObjectiveListByEmailAndTargetMonthAndUpperCategoryType(memberEmail,spendingYearMonth,upperCategoryType);
+        for (ExpenseObjective expenseObjective : list) {
+            expenseObjective.setSpentAmount(expenseObjective.getSpentAmount() + expenseAmount);
+        }
+        expenseObjectiveRepository.saveAll(list);
         return spendingRepository.save(spending); // 저장된 객체 반환
     }
 

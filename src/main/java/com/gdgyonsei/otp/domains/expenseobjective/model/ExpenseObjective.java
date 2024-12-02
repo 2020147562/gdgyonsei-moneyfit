@@ -39,6 +39,7 @@ public class ExpenseObjective {
 
     // target month of this objective
     @Column(nullable = false)
-    private YearMonth targetMonth;
+    @Pattern(regexp = "\\d{4}-\\d{2}", message = "Invalid yearMonth format. Expected yyyy-MM.")
+    private String targetMonth;
 }
 

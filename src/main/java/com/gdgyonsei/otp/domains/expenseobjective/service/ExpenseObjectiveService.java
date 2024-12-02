@@ -8,6 +8,7 @@ import com.gdgyonsei.otp.domains.expenseobjective.dto.ExpenseObjectiveUpdateRequ
 import com.gdgyonsei.otp.domains.expenseobjective.model.ExpenseObjective;
 import com.gdgyonsei.otp.domains.expenseobjective.repository.ExpenseObjectiveRepository;
 import com.gdgyonsei.otp.domains.util.UpperCategoryType;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +30,7 @@ public class ExpenseObjectiveService {
         objective.setExpenseLimit(request.getExpenseLimit());
         objective.setSpentAmount(0); // 처음에는 0으로 설정
         objective.setMemberEmail(memberEmail);
-        objective.setTargetMonth(YearMonth.parse(request.getTargetMonth()));
+        objective.setTargetMonth(request.getTargetMonth());
 
         if (!badgeOwnershipService.getFirstExpenseObjectiveAdd(memberEmail)) {
             badgeOwnershipService.updateFirstExpenseObjectiveAdd(memberEmail, true);
@@ -46,6 +47,23 @@ public class ExpenseObjectiveService {
                 .orElseThrow(() -> new RuntimeException("ExpenseObjective not found with id " + id));
     }
 
+    @Transactional(readOnly = true)
+    public List<ExpenseObjective> getExpenseObjectiveListByEmail(String email) {
+        return repository.findAllByMemberEmail(email);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ExpenseObjective> getExpenseObjectiveListByEmailAndTargetrMonth(
+            String email, @Pattern(regexp = "\\d{4}-\\d{2}", message = "Invalid yearMonth format. Expected yyyy-MM.") String yearMonth) {
+        return repository.findAllByMemberEmailAndTargetMonth(email, yearMonth);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ExpenseObjective> getExpenseObjectiveListByEmailAndTargetMonthAndUpperCategoryType(
+            String email, @Pattern(regexp = "\\d{4}-\\d{2}", message = "Invalid yearMonth format. Expected yyyy-MM.") String targetMonth,
+            UpperCategoryType upperCategoryType) {
+        return repository.findAllByMemberEmailAndTargetMonthAndUpperCategoryType(email, targetMonth, upperCategoryType);
+    }
 
     @Transactional
     public void updateExpenseObjectiveById(Long id, ExpenseObjectiveUpdateRequest request) {
@@ -53,7 +71,7 @@ public class ExpenseObjectiveService {
         objective.setUpperCategoryType(UpperCategoryType.valueOf(request.getUpperCategoryType().toUpperCase()));
         objective.setExpenseLimit(request.getExpenseLimit());
         objective.setSpentAmount(request.getSpentAmount());
-        objective.setTargetMonth(YearMonth.parse(request.getTargetMonth()));
+        objective.setTargetMonth(request.getTargetMonth());
         repository.save(objective);
     }
 

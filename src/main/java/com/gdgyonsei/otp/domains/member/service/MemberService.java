@@ -9,6 +9,7 @@ import com.gdgyonsei.otp.domains.member.model.IncomeLevel;
 import com.gdgyonsei.otp.domains.member.model.Job;
 import com.gdgyonsei.otp.domains.member.model.Member;
 import com.gdgyonsei.otp.domains.member.repository.MemberRepository;
+import com.gdgyonsei.otp.domains.point.service.PointsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final BadgeService badgeService;
     private final BadgeOwnershipService badgeOwnershipService;
+    private final PointsService pointsService;
 
     // Create
     @Transactional
@@ -39,6 +41,7 @@ public class MemberService {
         String badgeTypeString = "SIGN_UP_COMPLETE";
         badgeService.createBadge(email, badgeTypeString, null, null);
         badgeOwnershipService.createBadgeOwnershipService(email);
+        pointsService.createPoints(request.getEmail());
 
         return memberRepository.save(member);
     }
