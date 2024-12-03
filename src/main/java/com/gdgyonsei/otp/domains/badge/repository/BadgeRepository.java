@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface BadgeRepository extends JpaRepository<Badge, Long> {
     List<Badge> findAllByMemberEmail(String memberEmail); // 특정 유저의 모든 뱃지 조회
+    void deleteByMemberEmail(String memberEmail);
 }

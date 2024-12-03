@@ -74,4 +74,9 @@ public class BadgeService {
     public void deleteBadgeById(Long id) {
         badgeRepository.deleteById(id);
     }
+
+    @Transactional
+    public void deleteBadgeByEmail(String email) {
+        badgeRepository.deleteByMemberEmail(email);
+    }
 }

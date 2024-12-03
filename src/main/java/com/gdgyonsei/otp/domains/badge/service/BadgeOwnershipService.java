@@ -97,7 +97,12 @@ public class BadgeOwnershipService {
         badgeOwnershipRepository.save(badgeOwnership);
     }
 
+    @Transactional
+    public void deleteBadgeOwnershipByEmail(String email) {
+        badgeOwnershipRepository.deleteByMemberEmail(email);
+    }
     private BadgeOwnership getBadgeOwnershipByEmail(String memberEmail) {
         return badgeOwnershipRepository.findByMemberEmail(memberEmail);
     }
+
 }

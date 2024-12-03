@@ -49,16 +49,18 @@ public class PointsService {
         if (points.getLeftPoints() < GATCHA_COST) {
             return false;
         }
+        // Cost Deduction
         points.setLeftPoints(points.getLeftPoints() - GATCHA_COST);
+
         if (!badgeOwnershipService.getFirstRandomBoxTrial(memberEmail)) {
-            badgeOwnershipService.updateFirstRandomBoxSuccess(memberEmail, true);
+            badgeOwnershipService.updateFirstRandomBoxTrial(memberEmail, true);
             String badgeTypeString = "FIRST_RANDOM_BOX_TRIAL";
             badgeService.createBadge(memberEmail, badgeTypeString, null, null);
         }
         boolean isSuccess = new Random().nextInt(100) < 10;
         if (isSuccess) {
             sendSuccessEmail(giftyEmail);
-            if (!badgeOwnershipService.getFirstRandomBoxTrial(memberEmail)) {
+            if (!badgeOwnershipService.getFirstRandomBoxSuccess(memberEmail)) {
                 badgeOwnershipService.updateFirstRandomBoxSuccess(memberEmail, true);
                 String badgeTypeString = "FIRST_RANDOM_BOX_SUCCESS";
                 badgeService.createBadge(memberEmail, badgeTypeString, null, null);
@@ -112,6 +114,11 @@ public class PointsService {
         points.setLeftPoints(result);
         pointsRepository.save(points);
         return result;
+    }
+
+    @Transactional
+    public void deletePointsByEmail(String email) {
+        pointsRepository.deleteByMemberEmail(email);
     }
 
     private void sendSuccessEmail(String email) {

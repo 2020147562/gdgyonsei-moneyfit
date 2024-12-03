@@ -7,14 +7,13 @@ import com.gdgyonsei.otp.domains.expenseobjective.dto.ExpenseObjectiveUpdateRequ
 
 import com.gdgyonsei.otp.domains.expenseobjective.model.ExpenseObjective;
 import com.gdgyonsei.otp.domains.expenseobjective.repository.ExpenseObjectiveRepository;
-import com.gdgyonsei.otp.domains.spending.service.SpendingService;
+import com.gdgyonsei.otp.domains.spending.service.ExpenseObjectiveHelperService;
 import com.gdgyonsei.otp.domains.util.UpperCategoryType;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.YearMonth;
 import java.util.List;
 
 @Service
@@ -23,7 +22,7 @@ public class ExpenseObjectiveService {
     private final ExpenseObjectiveRepository repository;
     private final BadgeOwnershipService badgeOwnershipService;
     private final BadgeService badgeService;
-    private final SpendingService spendingService;
+    private final ExpenseObjectiveHelperService spendingService;
 
     @Transactional
     public ExpenseObjective createExpenseObjective(ExpenseObjectiveCreateRequest request, String memberEmail) {
@@ -103,6 +102,11 @@ public class ExpenseObjectiveService {
     @Transactional
     public void deleteExpenseObjectiveById(Long id) {
         repository.deleteById(id);
+    }
+
+    @Transactional
+    public void deleteExpenseObjectivesByEmail(String email) {
+        repository.deleteByMemberEmail(email);
     }
 
     @Transactional(readOnly = true)

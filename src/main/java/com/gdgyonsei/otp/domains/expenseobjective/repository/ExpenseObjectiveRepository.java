@@ -15,6 +15,7 @@ public interface ExpenseObjectiveRepository extends JpaRepository<ExpenseObjecti
     List<ExpenseObjective> findAllByMemberEmailAndTargetMonth(String memberEmail, String targetMonth);
     List<ExpenseObjective> findAllByMemberEmailAndTargetMonthAndUpperCategoryType
             (String memberEmail, String targetMonth, UpperCategoryType upperCategoryType);
+    void deleteByMemberEmail(String memberEmail);
 
     @Query("SELECT e FROM ExpenseObjective e WHERE e.memberEmail = :memberEmail AND e.targetMonth = :yearMonth")
     List<ExpenseObjective> findAllByYearAndMonth(@Param("memberEmail") String memberEmail, @Param("yearMonth") String yearMonth);

@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface PointsRepository extends JpaRepository<Points, Long> {
     Optional<Points> findByMemberEmail(String memberEmail);
+    void deleteByMemberEmail(String memberEmail);
 }

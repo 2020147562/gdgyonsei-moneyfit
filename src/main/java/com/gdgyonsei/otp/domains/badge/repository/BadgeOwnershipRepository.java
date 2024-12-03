@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BadgeOwnershipRepository extends JpaRepository<BadgeOwnership, Long> {
     BadgeOwnership findByMemberEmail(String memberEmail);
+    void deleteByMemberEmail(String memberEmail);
 }

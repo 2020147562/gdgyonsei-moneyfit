@@ -2,6 +2,7 @@ package com.gdgyonsei.otp.domains.member.service;
 
 import com.gdgyonsei.otp.domains.badge.service.BadgeOwnershipService;
 import com.gdgyonsei.otp.domains.badge.service.BadgeService;
+import com.gdgyonsei.otp.domains.expenseobjective.service.ExpenseObjectiveService;
 import com.gdgyonsei.otp.domains.member.dto.NewMemberInfoRequest;
 import com.gdgyonsei.otp.domains.member.dto.UpdateMemberInfoRequest;
 import com.gdgyonsei.otp.domains.member.model.Gender;
@@ -10,6 +11,7 @@ import com.gdgyonsei.otp.domains.member.model.Job;
 import com.gdgyonsei.otp.domains.member.model.Member;
 import com.gdgyonsei.otp.domains.member.repository.MemberRepository;
 import com.gdgyonsei.otp.domains.point.service.PointsService;
+import com.gdgyonsei.otp.domains.spending.service.SpendingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,8 @@ public class MemberService {
     private final BadgeService badgeService;
     private final BadgeOwnershipService badgeOwnershipService;
     private final PointsService pointsService;
+    private final ExpenseObjectiveService expenseObjectiveService;
+    private final SpendingService spendingService;
 
     // Create
     @Transactional
@@ -84,6 +88,12 @@ public class MemberService {
         Member member = getMemberByEmail(email);
         Long id = member.getId();
         memberRepository.deleteById(id);
+        badgeService.deleteBadgeByEmail(email);
+        badgeOwnershipService.deleteBadgeOwnershipByEmail(email);
+        expenseObjectiveService.deleteExpenseObjectivesByEmail(email);
+        spendingService.deleteSpendingByEmail(email);
+        pointsService.deletePointsByEmail(email);
+
     }
 }
 

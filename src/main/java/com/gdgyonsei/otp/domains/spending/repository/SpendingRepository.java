@@ -10,6 +10,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface SpendingRepository extends JpaRepository<Spending, Long> {
+    void deleteByMemberEmail(String memberEmail);
+
     @Query("SELECT s FROM Spending s WHERE s.memberEmail = :memberEmail ORDER BY s.dateTime DESC")
     List<Spending> findTopNSpendingByMemberEmail(@Param("memberEmail") String memberEmail, Pageable pageable);
 

@@ -3,6 +3,7 @@ package com.gdgyonsei.otp.domains.spending.service;
 import com.gdgyonsei.otp.domains.expenseobjective.model.ExpenseObjective;
 import com.gdgyonsei.otp.domains.expenseobjective.repository.ExpenseObjectiveRepository;
 import com.gdgyonsei.otp.domains.expenseobjective.service.ExpenseObjectiveService;
+import com.gdgyonsei.otp.domains.expenseobjective.service.SpendingHelperService;
 import com.gdgyonsei.otp.domains.spending.dto.SpendingCreateRequest;
 import com.gdgyonsei.otp.domains.spending.dto.SpendingUpdateRequest;
 import com.gdgyonsei.otp.domains.spending.model.Spending;
@@ -26,7 +27,7 @@ import java.util.List;
 public class SpendingService {
     private final SpendingRepository spendingRepository;
     private final ExpenseObjectiveRepository expenseObjectiveRepository;
-    private final ExpenseObjectiveService expenseObjectiveService;
+    private final SpendingHelperService expenseObjectiveService;
 
     @Transactional
     public Spending createSpending(SpendingCreateRequest request, String memberEmail) {
@@ -67,6 +68,11 @@ public class SpendingService {
     @Transactional
     public void deleteSpendingById(Long id) {
         spendingRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void deleteSpendingByEmail(String email) {
+        spendingRepository.deleteByMemberEmail(email);
     }
 
     @Transactional(readOnly = true)

@@ -61,7 +61,7 @@ public class MemberController {
 
     // Delete
     @DeleteMapping("/delete")
-    public ResponseEntity<Map<String, String>> deleteMemberById() {
+    public ResponseEntity<Map<String, String>> deleteMember() {
         String email = getAuthenticatedEmail();
         memberService.deleteMemberByEmail(email);
         return ResponseEntity.ok(Map.of("message", "Member deleted successfully"));
