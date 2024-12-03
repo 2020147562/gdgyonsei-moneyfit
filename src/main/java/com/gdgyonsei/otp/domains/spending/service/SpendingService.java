@@ -87,8 +87,13 @@ public class SpendingService {
 
     // 특정 유저의 특정 연월의 총지출 반환
     @Transactional(readOnly = true)
-    public Double getTotalExpenseByYearAndMonth(String memberEmail, int year, int month) {
+    public int getTotalExpenseByYearAndMonth(String memberEmail, int year, int month) {
         return spendingRepository.findTotalExpenseByYearAndMonth(memberEmail, year, month);
+    }
+
+    @Transactional(readOnly = true)
+    public int getTotalExpenseByYearAndMonthAndCategory(String memberEmail, int year, int month, UpperCategoryType upperCategoryType) {
+        return spendingRepository.findTotalExpenseByYearAndMonthAndCategory(memberEmail, year, month, upperCategoryType.toString());
     }
 
 

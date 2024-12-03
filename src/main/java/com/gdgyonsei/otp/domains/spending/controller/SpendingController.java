@@ -64,12 +64,12 @@ public class SpendingController {
     }
 
     @GetMapping("/monthly-expense/{year}/{month}")
-    public ResponseEntity<Double> getTotalExpenseByYearAndMonth(
+    public ResponseEntity<Integer> getTotalExpenseByYearAndMonth(
             @PathVariable int year,
             @PathVariable int month) {
         String email = getAuthenticatedEmail();
-        Double totalExpense = spendingService.getTotalExpenseByYearAndMonth(email, year, month);
-        return ResponseEntity.ok(totalExpense != null ? totalExpense : 0.0);
+        Integer totalExpense = spendingService.getTotalExpenseByYearAndMonth(email, year, month);
+        return ResponseEntity.ok(totalExpense);
     }
 
     private String getAuthenticatedEmail() {

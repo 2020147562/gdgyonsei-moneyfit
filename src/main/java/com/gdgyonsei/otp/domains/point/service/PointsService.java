@@ -49,6 +49,7 @@ public class PointsService {
         if (points.getLeftPoints() < GATCHA_COST) {
             return false;
         }
+        points.setLeftPoints(points.getLeftPoints() - GATCHA_COST);
         if (!badgeOwnershipService.getFirstRandomBoxTrial(memberEmail)) {
             badgeOwnershipService.updateFirstRandomBoxSuccess(memberEmail, true);
             String badgeTypeString = "FIRST_RANDOM_BOX_TRIAL";
@@ -56,7 +57,6 @@ public class PointsService {
         }
         boolean isSuccess = new Random().nextInt(100) < 10;
         if (isSuccess) {
-            points.setLeftPoints(points.getLeftPoints() + GATCHA_COST);
             sendSuccessEmail(giftyEmail);
             if (!badgeOwnershipService.getFirstRandomBoxTrial(memberEmail)) {
                 badgeOwnershipService.updateFirstRandomBoxSuccess(memberEmail, true);

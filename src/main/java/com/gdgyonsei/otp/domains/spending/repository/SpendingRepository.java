@@ -18,6 +18,8 @@ public interface SpendingRepository extends JpaRepository<Spending, Long> {
     List<UpperCategorySummary> findMonthlyExpenseByCategory(@Param("email") String memberEmail, @Param("year") int year, @Param("month") int month);
 
     @Query("SELECT SUM(s.expenseAmount) FROM Spending s WHERE s.memberEmail = :memberEmail AND YEAR(s.dateTime) = :year AND MONTH(s.dateTime) = :month")
-    Double findTotalExpenseByYearAndMonth(@Param("memberEmail") String memberEmail, @Param("year") int year, @Param("month") int month);
+    int findTotalExpenseByYearAndMonth(@Param("memberEmail") String memberEmail, @Param("year") int year, @Param("month") int month);
 
+    @Query("SELECT SUM(s.expenseAmount) FROM Spending s WHERE s.memberEmail = :memberEmail AND YEAR(s.dateTime) = :year AND MONTH(s.dateTime) = :month AND s.upperCategoryType = :category")
+    int findTotalExpenseByYearAndMonthAndCategory(@Param("memberEmail") String memberEmail, @Param("year") int year, @Param("month") int month, @Param("category") String category);
 }

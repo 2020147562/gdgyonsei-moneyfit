@@ -7,6 +7,7 @@ import com.gdgyonsei.otp.domains.expenseobjective.dto.ExpenseObjectiveUpdateRequ
 
 import com.gdgyonsei.otp.domains.expenseobjective.model.ExpenseObjective;
 import com.gdgyonsei.otp.domains.expenseobjective.repository.ExpenseObjectiveRepository;
+import com.gdgyonsei.otp.domains.spending.service.SpendingService;
 import com.gdgyonsei.otp.domains.util.UpperCategoryType;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -22,16 +23,26 @@ public class ExpenseObjectiveService {
     private final ExpenseObjectiveRepository repository;
     private final BadgeOwnershipService badgeOwnershipService;
     private final BadgeService badgeService;
+    private final SpendingService spendingService;
 
     @Transactional
     public ExpenseObjective createExpenseObjective(ExpenseObjectiveCreateRequest request, String memberEmail) {
-        ExpenseObjective objective = new ExpenseObjective();
-        objective.setUpperCategoryType(UpperCategoryType.valueOf(request.getUpperCategoryType().toUpperCase()));
-        objective.setExpenseLimit(request.getExpenseLimit());
-        objective.setSpentAmount(0); // 처음에는 0으로 설정
-        objective.setMemberEmail(memberEmail);
-        objective.setTargetMonth(request.getTargetMonth());
+        // Get previously spent amount of money in this month
+        String targetMonth = request.getTargetMonth();
+        int year = Integer.parseInt(targetMonth.substring(0, 4));
+        int month = Integer.parseInt(targetMonth.substring(5, 7));
+        UpperCategoryType category = UpperCategoryType.valueOf(request.getUpperCategoryType().toUpperCase());
+        int spentAmount = spendingService.getTotalExpenseByYearAndMonthAndCategory(memberEmail, year, month, category);
 
+        // Generate an ExpenseObjective
+        ExpenseObjective objective = new ExpenseObjective();
+        objective.setUpperCategoryType(category);
+        objective.setExpenseLimit(request.getExpenseLimit());
+        objective.setSpentAmount(spentAmount);
+        objective.setMemberEmail(memberEmail);
+        objective.setTargetMonth(targetMonth);
+
+        // Generate Badge if necessary
         if (!badgeOwnershipService.getFirstExpenseObjectiveAdd(memberEmail)) {
             badgeOwnershipService.updateFirstExpenseObjectiveAdd(memberEmail, true);
             String badgeTypeString = "FIRST_EXPENSE_OBJECTIVE_ADD";
@@ -79,6 +90,13 @@ public class ExpenseObjectiveService {
     public void updateExpenseObjectiveOnlySpentAmount(Long id, int spentAmount) {
         ExpenseObjective objective = getExpenseObjectiveById(id);
         objective.setSpentAmount(spentAmount);
+        repository.save(objective);
+    }
+
+    @Transactional
+    public void updateExpenseObjectiveOnlyExpenseLimit(Long id, int expenseLimit) {
+        ExpenseObjective objective = getExpenseObjectiveById(id);
+        objective.setExpenseLimit(expenseLimit);
         repository.save(objective);
     }
 

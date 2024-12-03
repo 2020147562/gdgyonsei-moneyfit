@@ -74,6 +74,12 @@ public class ExpenseObjectiveController {
         return ResponseEntity.ok(Map.of("message", "ExpenseObjective updated successfully"));
     }
 
+    @PutMapping("/update/{id}/{expenseLimit}")
+    public ResponseEntity<Map<String, String>> updateExpenseObjectiveOnlyExpenseLimit(@PathVariable Long id, @PathVariable int expenseLimit) {
+        service.updateExpenseObjectiveOnlyExpenseLimit(id, expenseLimit);
+        return ResponseEntity.ok(Map.of("message", "ExpenseObjective updated successfully"));
+    }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Map<String, String>> deleteExpenseObjective(@PathVariable Long id) {
         service.deleteExpenseObjectiveById(id);
