@@ -19,6 +19,6 @@ public class SpendingHelperService {
     public List<ExpenseObjective> getExpenseObjectiveListByEmailAndTargetMonthAndUpperCategoryType(
             String email, @Pattern(regexp = "\\d{4}-\\d{2}", message = "Invalid yearMonth format. Expected yyyy-MM.") String targetMonth,
             UpperCategoryType upperCategoryType) {
-        return expenseObjectiveRepository.findAllByMemberEmailAndTargetMonthAndUpperCategoryType(email, targetMonth, upperCategoryType);
+        return expenseObjectiveRepository.findAllByMemberEmailAndTargetMonthAndUpperCategoryTypeOrderByIdAsc(email, targetMonth, upperCategoryType);
     }
 }

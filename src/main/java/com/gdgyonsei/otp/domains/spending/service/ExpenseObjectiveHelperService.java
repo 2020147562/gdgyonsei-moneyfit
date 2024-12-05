@@ -13,7 +13,7 @@ public class ExpenseObjectiveHelperService {
 
     @Transactional(readOnly = true)
     public int getTotalExpenseByYearAndMonthAndCategory(String memberEmail, int year, int month, UpperCategoryType upperCategoryType) {
-        return spendingRepository.findTotalExpenseByYearAndMonthAndCategory(memberEmail, year, month, upperCategoryType.toString());
+        return spendingRepository.findTotalExpenseByYearAndMonthAndCategory(memberEmail, year, month, upperCategoryType);
     }
 
 }

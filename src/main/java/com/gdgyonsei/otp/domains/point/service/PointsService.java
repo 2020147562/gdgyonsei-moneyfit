@@ -16,6 +16,7 @@ import java.util.Random;
 
 import static com.gdgyonsei.otp.domains.point.constants.Constants.BASIC_ATTENDANCE_POINTS;
 import static com.gdgyonsei.otp.domains.point.constants.Constants.GATCHA_COST;
+import static com.gdgyonsei.otp.domains.point.constants.Constants.GATCHA_PROBABILITY;
 
 @RequiredArgsConstructor
 @Service
@@ -57,7 +58,7 @@ public class PointsService {
             String badgeTypeString = "FIRST_RANDOM_BOX_TRIAL";
             badgeService.createBadge(memberEmail, badgeTypeString, null, null);
         }
-        boolean isSuccess = new Random().nextInt(100) < 10;
+        boolean isSuccess = new Random().nextInt(100) < GATCHA_PROBABILITY;
         if (isSuccess) {
             sendSuccessEmail(giftyEmail);
             if (!badgeOwnershipService.getFirstRandomBoxSuccess(memberEmail)) {
@@ -69,13 +70,22 @@ public class PointsService {
         return isSuccess;
     }
 
+    // [오늘 포인트받았는지 여부, 오늘치 포인트지급전며칠연속으로 접속했는가(포인트받았는가)]
+    @Transactional(readOnly = true)
+    public List<Object> doesGetPointsToday(String email) {
+        Points points = getPointsByEmail(email);
+        LocalDate today = LocalDate.now();
+        LocalDate lastAccessDate = points.getLastAccessDate();
+        // 앞이 true : 오늘포인트받음 false: 오늘포인트받지않음
+        return List.of(today.equals(lastAccessDate), points.getConsecutiveDays());
+    }
+
     // return : List(consecutiveDays, leftPoints)
     @Transactional
     public List<Object> provideAttendancePoints(String email) {
         Points points = getPointsByEmail(email);
         LocalDate today = LocalDate.now();
         LocalDate lastAccessDate = points.getLastAccessDate();
-
         // If the points are already provided to the member, just return current point status
         if (today.equals(lastAccessDate)) {
             return List.of(points.getConsecutiveDays(), points.getLeftPoints());

@@ -28,9 +28,17 @@ public class ExpenseObjectiveService {
     public ExpenseObjective createExpenseObjective(ExpenseObjectiveCreateRequest request, String memberEmail) {
         // Get previously spent amount of money in this month
         String targetMonth = request.getTargetMonth();
+        if (!targetMonth.matches("\\d{4}-\\d{2}")) {
+            throw new IllegalArgumentException("Invalid targetMonth format: " + targetMonth);
+        }
         int year = Integer.parseInt(targetMonth.substring(0, 4));
         int month = Integer.parseInt(targetMonth.substring(5, 7));
-        UpperCategoryType category = UpperCategoryType.valueOf(request.getUpperCategoryType().toUpperCase());
+        UpperCategoryType category;
+        try {
+            category = UpperCategoryType.valueOf(request.getUpperCategoryType().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid UpperCategoryType: " + request.getUpperCategoryType(), e);
+        }
         int spentAmount = spendingService.getTotalExpenseByYearAndMonthAndCategory(memberEmail, year, month, category);
 
         // Generate an ExpenseObjective
@@ -41,11 +49,12 @@ public class ExpenseObjectiveService {
         objective.setMemberEmail(memberEmail);
         objective.setTargetMonth(targetMonth);
 
-        // Generate Badge if necessary
-        if (!badgeOwnershipService.getFirstExpenseObjectiveAdd(memberEmail)) {
-            badgeOwnershipService.updateFirstExpenseObjectiveAdd(memberEmail, true);
-            String badgeTypeString = "FIRST_EXPENSE_OBJECTIVE_ADD";
-            badgeService.createBadge(memberEmail, badgeTypeString, null, null);
+        // Generate Badge if necessary (atomic operation)
+        synchronized (this) {
+            if (!badgeOwnershipService.getFirstExpenseObjectiveAdd(memberEmail)) {
+                badgeOwnershipService.updateFirstExpenseObjectiveAdd(memberEmail, true);
+                badgeService.createBadge(memberEmail, "FIRST_EXPENSE_OBJECTIVE_ADD", null, null);
+            }
         }
 
         return repository.save(objective);
@@ -59,20 +68,20 @@ public class ExpenseObjectiveService {
 
     @Transactional(readOnly = true)
     public List<ExpenseObjective> getExpenseObjectiveListByEmail(String email) {
-        return repository.findAllByMemberEmail(email);
+        return repository.findAllByMemberEmailOrderByIdAsc(email);
     }
 
     @Transactional(readOnly = true)
-    public List<ExpenseObjective> getExpenseObjectiveListByEmailAndTargetrMonth(
+    public List<ExpenseObjective> getExpenseObjectiveListByEmailAndTargetMonth(
             String email, @Pattern(regexp = "\\d{4}-\\d{2}", message = "Invalid yearMonth format. Expected yyyy-MM.") String yearMonth) {
-        return repository.findAllByMemberEmailAndTargetMonth(email, yearMonth);
+        return repository.findAllByMemberEmailAndTargetMonthOrderByIdAsc(email, yearMonth);
     }
 
     @Transactional(readOnly = true)
     public List<ExpenseObjective> getExpenseObjectiveListByEmailAndTargetMonthAndUpperCategoryType(
             String email, @Pattern(regexp = "\\d{4}-\\d{2}", message = "Invalid yearMonth format. Expected yyyy-MM.") String targetMonth,
             UpperCategoryType upperCategoryType) {
-        return repository.findAllByMemberEmailAndTargetMonthAndUpperCategoryType(email, targetMonth, upperCategoryType);
+        return repository.findAllByMemberEmailAndTargetMonthAndUpperCategoryTypeOrderByIdAsc(email, targetMonth, upperCategoryType);
     }
 
     @Transactional
@@ -96,7 +105,7 @@ public class ExpenseObjectiveService {
     public void updateExpenseObjectiveOnlyExpenseLimit(Long id, int expenseLimit) {
         ExpenseObjective objective = getExpenseObjectiveById(id);
         objective.setExpenseLimit(expenseLimit);
-        repository.save(objective);
+        // repository.save(objective);
     }
 
     @Transactional

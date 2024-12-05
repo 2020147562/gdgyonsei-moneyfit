@@ -23,10 +23,10 @@ public class SpendingController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Map<String, String>> createSpending(@RequestBody SpendingCreateRequest request) {
+    public ResponseEntity<Map<String, Object>> createSpending(@RequestBody SpendingCreateRequest request) {
         String email = getAuthenticatedEmail();
-        Spending spending = spendingService.createSpending(request, email);
-        return ResponseEntity.ok(Map.of("message", "Spending created successfully", "id", spending.getId().toString()));
+        Map<String, Object> res = spendingService.createSpending(request, email);
+        return ResponseEntity.ok(Map.of("message", "Spending created successfully", "id", res.get("spendingId").toString(),"isOutlier", res.get("isOutlier")));
     }
 
     // Spending의 id로 검색

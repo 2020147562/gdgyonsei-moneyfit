@@ -68,4 +68,8 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
+flask:
+  server:
+    url: http://python-app:5000
+
 

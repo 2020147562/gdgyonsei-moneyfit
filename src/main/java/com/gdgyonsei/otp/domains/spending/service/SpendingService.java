@@ -1,5 +1,6 @@
 package com.gdgyonsei.otp.domains.spending.service;
 
+import com.gdgyonsei.otp.domains.analysis.service.AnalysisService;
 import com.gdgyonsei.otp.domains.expenseobjective.model.ExpenseObjective;
 import com.gdgyonsei.otp.domains.expenseobjective.repository.ExpenseObjectiveRepository;
 import com.gdgyonsei.otp.domains.expenseobjective.service.ExpenseObjectiveService;
@@ -21,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -28,9 +30,10 @@ public class SpendingService {
     private final SpendingRepository spendingRepository;
     private final ExpenseObjectiveRepository expenseObjectiveRepository;
     private final SpendingHelperService expenseObjectiveService;
+    private final AnalysisService analysisService;
 
     @Transactional
-    public Spending createSpending(SpendingCreateRequest request, String memberEmail) {
+    public Map<String, Object> createSpending(SpendingCreateRequest request, String memberEmail) {
         Spending spending = new Spending();
         spending.setMemberEmail(memberEmail);
         spending.setUpperCategoryType(UpperCategoryType.valueOf(request.getUpperCategoryType().toUpperCase()));
@@ -47,7 +50,9 @@ public class SpendingService {
             expenseObjective.setSpentAmount(expenseObjective.getSpentAmount() + expenseAmount);
         }
         expenseObjectiveRepository.saveAll(list);
-        return spendingRepository.save(spending); // 저장된 객체 반환
+        spendingRepository.save(spending);
+        boolean isOutlier = analysisService.checkOverConsumption("1", memberEmail);
+        return Map.of("isOutlier", isOutlier, "spendingId", spending.getId()); // 저장된 객체 반환
     }
 
     @Transactional(readOnly = true)
@@ -99,7 +104,7 @@ public class SpendingService {
 
     @Transactional(readOnly = true)
     public int getTotalExpenseByYearAndMonthAndCategory(String memberEmail, int year, int month, UpperCategoryType upperCategoryType) {
-        return spendingRepository.findTotalExpenseByYearAndMonthAndCategory(memberEmail, year, month, upperCategoryType.toString());
+        return spendingRepository.findTotalExpenseByYearAndMonthAndCategory(memberEmail, year, month, upperCategoryType);
     }
 
 

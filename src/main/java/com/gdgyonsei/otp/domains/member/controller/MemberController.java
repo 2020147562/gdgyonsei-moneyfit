@@ -1,7 +1,5 @@
 package com.gdgyonsei.otp.domains.member.controller;
 
-import com.gdgyonsei.otp.domains.badge.service.BadgeOwnershipService;
-import com.gdgyonsei.otp.domains.badge.service.BadgeService;
 import com.gdgyonsei.otp.domains.member.dto.NewMemberInfoRequest;
 import com.gdgyonsei.otp.domains.member.dto.UpdateMemberInfoRequest;
 import com.gdgyonsei.otp.domains.member.model.Member;

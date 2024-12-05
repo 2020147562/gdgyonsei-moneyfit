@@ -3,6 +3,7 @@ package com.gdgyonsei.otp.domains.point.controller;
 import com.gdgyonsei.otp.domains.point.model.Points;
 import com.gdgyonsei.otp.domains.point.service.PointsService;
 import jakarta.validation.constraints.Pattern;
+import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +15,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/android/points")
 public class PointsController {
     private final PointsService pointsService;
-
-    public PointsController(PointsService pointsService) {
-        this.pointsService = pointsService;
-    }
 
     @GetMapping
     public ResponseEntity<Map<String, Long>> getPointsByMemberEmail() {
@@ -57,6 +55,15 @@ public class PointsController {
         String email = getAuthenticatedEmail();
         Long leftPoints = pointsService.addThousandPointsWithEmail(email);
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("leftPoints", leftPoints));
+    }
+
+    @GetMapping("/doesGetPointsToday")
+    public ResponseEntity<Map<String, ?>> doesGetPointsToday() {
+        String email = getAuthenticatedEmail();
+        List<Object> results = pointsService.doesGetPointsToday(email);
+        boolean doesGetPointsToday = (boolean) results.get(0);
+        int consecutiveDays = (int) results.get(1);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("doesGetPointsToday", doesGetPointsToday, "consecutiveDaysBeforeGetAttendancePoints", consecutiveDays));
     }
 
     private String getAuthenticatedEmail() {

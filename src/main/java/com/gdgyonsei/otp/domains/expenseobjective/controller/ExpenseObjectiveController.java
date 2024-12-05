@@ -47,7 +47,7 @@ public class ExpenseObjectiveController {
     public ResponseEntity<Map<String, List<ExpenseObjective>>> getExpenseObjectiveListByEmailAndTargetMonth(
             @PathVariable @Pattern(regexp = "\\d{4}-\\d{2}", message = "Invalid yearMonth format. Expected yyyy-MM.") String targetMonth) {
         String email = getAuthenticatedEmail();
-        List<ExpenseObjective> list = service.getExpenseObjectiveListByEmailAndTargetrMonth(email, targetMonth);
+        List<ExpenseObjective> list = service.getExpenseObjectiveListByEmailAndTargetMonth(email, targetMonth);
         return ResponseEntity.ok(Map.of("expenseObjective list for this member", list));
     }
 
@@ -68,11 +68,11 @@ public class ExpenseObjectiveController {
         return ResponseEntity.ok(Map.of("message", "ExpenseObjective updated successfully"));
     }
 
-    @PutMapping("/update/{id}/{spentAmount}")
-    public ResponseEntity<Map<String, String>> updateExpenseObjectiveOnlySpentAmount(@PathVariable Long id, @PathVariable int spentAmount) {
-        service.updateExpenseObjectiveOnlySpentAmount(id, spentAmount);
-        return ResponseEntity.ok(Map.of("message", "ExpenseObjective updated successfully"));
-    }
+//    @PutMapping("/update/{id}/{spentAmount}")
+//    public ResponseEntity<Map<String, String>> updateExpenseObjectiveOnlySpentAmount(@PathVariable Long id, @PathVariable int spentAmount) {
+//        service.updateExpenseObjectiveOnlySpentAmount(id, spentAmount);
+//        return ResponseEntity.ok(Map.of("message", "ExpenseObjective updated successfully"));
+//    }
 
     @PutMapping("/update/{id}/{expenseLimit}")
     public ResponseEntity<Map<String, String>> updateExpenseObjectiveOnlyExpenseLimit(@PathVariable Long id, @PathVariable int expenseLimit) {

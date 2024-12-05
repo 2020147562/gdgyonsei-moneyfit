@@ -2,8 +2,8 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
-    image: akasia/otp_financial:v2.0
+      dockerfile: Dockerfile.spring
+    image: akasia/otp_financial:v2.2
     ports:
       - "8080:8080"
     environment:
@@ -13,6 +13,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - backend
 
   db:
     image: postgres:15
@@ -29,8 +31,39 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - backend
+
+  python-app:
+    build:
+      context: ./src/main/java/com/gdgyonsei/otp/domains/analysis/pythons
+      dockerfile: Dockerfile.python
+    image: akasia/otp_python:v2.2
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=app.py
+      - PYTHON UNBUFFERED=1
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_URL_FOR_PYTHON=${DB_URL_FOR_PYTHON}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
 
 volumes:
   postgres_data:
+
+networks:
+  backend:
+    driver: bridge
+
+
 
 

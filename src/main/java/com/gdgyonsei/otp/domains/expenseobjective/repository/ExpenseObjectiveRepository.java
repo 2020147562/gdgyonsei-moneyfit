@@ -11,10 +11,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ExpenseObjectiveRepository extends JpaRepository<ExpenseObjective, Long> {
-    List<ExpenseObjective> findAllByMemberEmail(String memberEmail);
-    List<ExpenseObjective> findAllByMemberEmailAndTargetMonth(String memberEmail, String targetMonth);
-    List<ExpenseObjective> findAllByMemberEmailAndTargetMonthAndUpperCategoryType
-            (String memberEmail, String targetMonth, UpperCategoryType upperCategoryType);
+    List<ExpenseObjective> findAllByMemberEmailOrderByIdAsc(String memberEmail);
+
+    List<ExpenseObjective> findAllByMemberEmailAndTargetMonthOrderByIdAsc(String memberEmail, String targetMonth);
+
+    List<ExpenseObjective> findAllByMemberEmailAndTargetMonthAndUpperCategoryTypeOrderByIdAsc(
+            String memberEmail, String targetMonth, UpperCategoryType upperCategoryType);
     void deleteByMemberEmail(String memberEmail);
 
     @Query("SELECT e FROM ExpenseObjective e WHERE e.memberEmail = :memberEmail AND e.targetMonth = :yearMonth")
