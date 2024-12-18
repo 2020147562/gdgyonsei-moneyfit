@@ -1,0 +1,18 @@
+# JDK 21 사용
+FROM openjdk:21-jdk-slim
+
+# 필요한 패키지 설치 (ping을 포함하여 네트워크 테스트에 유용한 도구 설치)
+RUN apt-get update && apt-get install -y iputils-ping
+
+# curl 패키지 설치
+RUN apt-get update && apt-get install -y curl
+
+
+# JAR 파일을 컨테이너에 복사
+COPY ./build/libs/oTP-0.0.1-SNAPSHOT.jar app.jar
+
+# 애플리케이션 실행
+ENTRYPOINT ["java", "-jar", "/app.jar"]
+
+
+

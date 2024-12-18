@@ -1,0 +1,113 @@
+package com.gdgyonsei.otp.domains.spending.service;
+
+import com.gdgyonsei.otp.domains.analysis.service.AnalysisService;
+import com.gdgyonsei.otp.domains.expenseobjective.model.ExpenseObjective;
+import com.gdgyonsei.otp.domains.expenseobjective.repository.ExpenseObjectiveRepository;
+import com.gdgyonsei.otp.domains.expenseobjective.service.ExpenseObjectiveService;
+import com.gdgyonsei.otp.domains.expenseobjective.service.SpendingHelperService;
+import com.gdgyonsei.otp.domains.spending.dto.SpendingCreateRequest;
+import com.gdgyonsei.otp.domains.spending.dto.SpendingUpdateRequest;
+import com.gdgyonsei.otp.domains.spending.model.Spending;
+import com.gdgyonsei.otp.domains.spending.model.UpperCategorySummary;
+import com.gdgyonsei.otp.domains.spending.repository.SpendingRepository;
+import com.gdgyonsei.otp.domains.util.UpperCategoryType;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@RequiredArgsConstructor
+public class SpendingService {
+    private final SpendingRepository spendingRepository;
+    private final ExpenseObjectiveRepository expenseObjectiveRepository;
+    private final SpendingHelperService expenseObjectiveService;
+    private final AnalysisService analysisService;
+
+    @Transactional
+    public Map<String, Object> createSpending(SpendingCreateRequest request, String memberEmail) {
+        Spending spending = new Spending();
+        spending.setMemberEmail(memberEmail);
+        spending.setUpperCategoryType(UpperCategoryType.valueOf(request.getUpperCategoryType().toUpperCase()));
+        spending.setDateTime(LocalDateTime.parse(request.getDateTime()));
+        spending.setExpenseAmount(request.getExpenseAmount());
+
+        // Spending이 추가되었으니 ExpenseObjective의 spentAmount값 증가시킴
+        String spendingYearMonth = YearMonth.from(spending.getDateTime()).toString();
+        UpperCategoryType upperCategoryType = spending.getUpperCategoryType();
+        int expenseAmount = spending.getExpenseAmount();
+        List<ExpenseObjective> list =
+                expenseObjectiveService.getExpenseObjectiveListByEmailAndTargetMonthAndUpperCategoryType(memberEmail,spendingYearMonth,upperCategoryType);
+        for (ExpenseObjective expenseObjective : list) {
+            expenseObjective.setSpentAmount(expenseObjective.getSpentAmount() + expenseAmount);
+        }
+        expenseObjectiveRepository.saveAll(list);
+        spendingRepository.save(spending);
+        boolean isOutlier = analysisService.checkOverConsumption("1", memberEmail);
+        return Map.of("isOutlier", isOutlier, "spendingId", spending.getId()); // 저장된 객체 반환
+    }
+
+    @Transactional(readOnly = true)
+    public Spending getSpendingById(Long id) {
+        return spendingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Spending not found with id " + id));
+    }
+
+    @Transactional
+    public void updateSpendingById(Long id, SpendingUpdateRequest request) {
+        Spending spending = getSpendingById(id);
+        spending.setUpperCategoryType(UpperCategoryType.valueOf(request.getUpperCategoryType().toUpperCase()));
+        spending.setDateTime(LocalDateTime.parse(request.getDateTime()));
+        spending.setExpenseAmount(request.getExpenseAmount());
+        spendingRepository.save(spending);
+    }
+
+    @Transactional
+    public void deleteSpendingById(Long id) {
+        spendingRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void deleteSpendingByEmail(String email) {
+        spendingRepository.deleteByMemberEmail(email);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Spending> getTopNSpendings(String memberEmail, int n, int page) {
+        Pageable pageable = PageRequest.of(page, n); // 첫 번째 패러미터 : 가져올 페이지, 두 번째 패러미터 : 한 페이지에 들어가는 entity 개수
+        return spendingRepository.findTopNSpendingByMemberEmail(memberEmail, pageable);
+    }
+
+    // 특정 유저의 전체 지출을 카테고리별로 정렬해서 총합을 내림차순으로 반환
+    @Transactional(readOnly = true)
+    public List<UpperCategorySummary> getMonthlyExpenseByCategory(String memberEmail, int year, int month) {
+        List<UpperCategorySummary> summaries = spendingRepository.findMonthlyExpenseByCategory(memberEmail, year, month);
+        // 내림차순 정렬
+        return summaries.stream()
+                .sorted((a, b) -> Integer.compare(b.getTotalExpense(), a.getTotalExpense()))
+                .toList();
+    }
+
+    // 특정 유저의 특정 연월의 총지출 반환
+    @Transactional(readOnly = true)
+    public int getTotalExpenseByYearAndMonth(String memberEmail, int year, int month) {
+        return spendingRepository.findTotalExpenseByYearAndMonth(memberEmail, year, month);
+    }
+
+    @Transactional(readOnly = true)
+    public int getTotalExpenseByYearAndMonthAndCategory(String memberEmail, int year, int month, UpperCategoryType upperCategoryType) {
+        return spendingRepository.findTotalExpenseByYearAndMonthAndCategory(memberEmail, year, month, upperCategoryType);
+    }
+
+
+}
+
+

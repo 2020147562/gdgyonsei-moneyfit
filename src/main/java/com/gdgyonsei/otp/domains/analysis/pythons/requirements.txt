@@ -1,0 +1,9 @@
+Flask==2.1.2
+psycopg2-binary==2.9.3
+scikit-learn==1.1.1
+pandas==1.4.2
+python-dotenv==0.20.0
+werkzeug==2.1.2
+numpy==1.22.3
+
+

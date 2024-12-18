@@ -38,3 +38,5 @@ out/
 
 # env
 .env
+
+gdg-moneyfit-keypair.pem
